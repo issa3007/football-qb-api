@@ -1,1 +1,0 @@
-# football-qb-api
