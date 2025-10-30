@@ -1,34 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { TeamsService } from './teams.service';
-import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Team } from 'src/teams/entities/team.entity';
 
+@ApiTags('teams')
 @Controller('teams')
 export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
   @Post()
-  create(@Body() createTeamDto: CreateTeamDto) {
-    return this.teamsService.create(createTeamDto);
+  @ApiOperation({ summary: 'Create a new team' })
+  create(@Body() partialData: Partial<Team>) {
+    return this.teamsService.create(partialData);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all teams with players and coach' })
   findAll() {
     return this.teamsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.teamsService.findOne(+id);
+  @ApiOperation({ summary: 'Get one team by id' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.teamsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
-    return this.teamsService.update(+id, updateTeamDto);
+  @ApiOperation({ summary: 'Update team by id' })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTeamDto: UpdateTeamDto,
+  ) {
+    return this.teamsService.update(id, updateTeamDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.teamsService.remove(+id);
+  @ApiOperation({ summary: 'Delete team by id' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.teamsService.remove(id);
   }
 }

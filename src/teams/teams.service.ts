@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTeamDto } from './dto/create-team.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateTeamDto } from './dto/update-team.dto';
+import { TeamsRepository } from './teams.repository';
+import { Team } from './entities/team.entity';
 
 @Injectable()
 export class TeamsService {
-  create(createTeamDto: CreateTeamDto) {
-    return 'This action adds a new team';
+  constructor(private readonly teamsRepository: TeamsRepository) {}
+
+  async create(partialData: Partial<Team>): Promise<Team> {
+    const team = await this.teamsRepository.create(partialData);
+    return team;
   }
 
-  findAll() {
-    return `This action returns all teams`;
+  async findAll() {
+    return this.teamsRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} team`;
+  async findOne(id: number) {
+    const team = await this.teamsRepository.findOne(id);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+    return team;
   }
 
-  update(id: number, updateTeamDto: UpdateTeamDto) {
-    return `This action updates a #${id} team`;
+  async update(id: number, updateTeamDto: UpdateTeamDto) {
+    const updated = await this.teamsRepository.update(id, updateTeamDto);
+    if (!updated) {
+      throw new NotFoundException('Team not found');
+    }
+    return updated;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} team`;
+  async remove(id: number) {
+    const result = await this.teamsRepository.remove(id);
+    if (!result) {
+      throw new NotFoundException('Team not found');
+    }
+    return { message: 'Team deleted successfully' };
   }
 }
