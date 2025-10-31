@@ -14,7 +14,7 @@ export class Match {
   @JoinColumn({ name: 'awayTeamId' })
   awayTeam: Team;
 
-  @Column()
+  @Column({ type: 'datetime' })
   date: Date;
 
   @Column()

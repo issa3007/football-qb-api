@@ -15,7 +15,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Football API')
+    .setTitle('Football api')
     .setDescription('Teams, Players, Coaches, Matches')
     .setVersion('1.0')
     .build();

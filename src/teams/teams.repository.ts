@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateTeamDto } from './dto/update-team.dto';
-import { Team } from 'src/teams/entities/team.entity';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Team } from './entities/team.entity';
+import { UpdateTeamDto } from './dto/update-team.dto';
 
 @Injectable()
 export class TeamsRepository {
@@ -16,7 +16,7 @@ export class TeamsRepository {
     return this.teamsRepo.save(team);
   }
 
-  async findAll(): Promise<Team[]> {
+  async findAll() {
     return this.teamsRepo
       .createQueryBuilder('team')
       .leftJoinAndSelect('team.players', 'players')
@@ -25,7 +25,7 @@ export class TeamsRepository {
       .getMany();
   }
 
-  async findOne(id: number): Promise<Team | null> {
+  async findOne(id: number) {
     return this.teamsRepo
       .createQueryBuilder('team')
       .leftJoinAndSelect('team.players', 'players')
@@ -34,16 +34,27 @@ export class TeamsRepository {
       .getOne();
   }
 
-  async update(id: number, updateTeamDto: UpdateTeamDto): Promise<Team | null> {
+  async findByCountry(country: string): Promise<Team[]> {
+    return this.teamsRepo
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.players', 'players')
+      .leftJoinAndSelect('team.coach', 'coach')
+      .where('team.country = :country', { country })
+      .orderBy('team.name', 'ASC')
+      .getMany();
+  }
+
+  async update(id: number, data: UpdateTeamDto) {
     const team = await this.teamsRepo.findOne({ where: { id } });
     if (!team) return null;
-    Object.assign(team, updateTeamDto);
+    Object.assign(team, data);
     return this.teamsRepo.save(team);
   }
 
   async remove(id: number) {
     const team = await this.teamsRepo.findOne({ where: { id } });
     if (!team) return false;
-    return this.teamsRepo.remove(team);
+    await this.teamsRepo.remove(team);
+    return true;
   }
 }

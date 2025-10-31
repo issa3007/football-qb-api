@@ -1,34 +1,68 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { PlayersService } from './players.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('players')
 @Controller('players')
 export class PlayersController {
   constructor(private readonly playersService: PlayersService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new player and assign to a team' })
   create(@Body() createPlayerDto: CreatePlayerDto) {
-    return this.playersService.create(createPlayerDto);
+    return this.playersService.createPlayer(createPlayerDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all players with their teams' })
   findAll() {
-    return this.playersService.findAll();
+    return this.playersService.findAllPlayers();
+  }
+
+  @Get('top-by-country')
+  @ApiOperation({
+    summary: 'Top goal-scoring countries (aggregated players goals)',
+  })
+  findTopScorersByCountry(@Query('limit') limit?: number) {
+    return this.playersService.findTopScorersByCountry(limit ? +limit : 5);
+  }
+
+  @Get('veterans')
+  @ApiOperation({ summary: 'Get players older than given age (default: 30)' })
+  findVeterans(@Query('minAge') minAge?: number) {
+    return this.playersService.findVeteranPlayers(minAge ? minAge : 30);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.playersService.findOne(+id);
+  @ApiOperation({ summary: 'Get player by id' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.playersService.findOnePlayer(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePlayerDto: UpdatePlayerDto) {
-    return this.playersService.update(+id, updatePlayerDto);
+  @ApiOperation({ summary: 'Update player by id' })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePlayerDto: UpdatePlayerDto,
+  ) {
+    return this.playersService.updatePlayer(id, updatePlayerDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.playersService.remove(+id);
+  @ApiOperation({ summary: 'Delete player by id' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.playersService.removePlayer(id);
   }
 }

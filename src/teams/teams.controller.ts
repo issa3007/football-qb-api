@@ -11,7 +11,7 @@ import {
 import { TeamsService } from './teams.service';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { Team } from 'src/teams/entities/team.entity';
+import { Team } from './entities/team.entity';
 
 @ApiTags('teams')
 @Controller('teams')
@@ -21,19 +21,25 @@ export class TeamsController {
   @Post()
   @ApiOperation({ summary: 'Create a new team' })
   create(@Body() partialData: Partial<Team>) {
-    return this.teamsService.create(partialData);
+    return this.teamsService.createTeam(partialData);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all teams with players and coach' })
   findAll() {
-    return this.teamsService.findAll();
+    return this.teamsService.findAllTeams();
+  }
+
+  @Get('country/:country')
+  @ApiOperation({ summary: 'Find all teams from a specific country' })
+  findByCountry(@Param('country') country: string) {
+    return this.teamsService.findByCountry(country);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get one team by id' })
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.teamsService.findOne(id);
+    return this.teamsService.findOneTeam(id);
   }
 
   @Patch(':id')
@@ -42,12 +48,12 @@ export class TeamsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTeamDto: UpdateTeamDto,
   ) {
-    return this.teamsService.update(id, updateTeamDto);
+    return this.teamsService.updateTeam(id, updateTeamDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete team by id' })
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.teamsService.remove(id);
+    return this.teamsService.removeTeam(id);
   }
 }

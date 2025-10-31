@@ -1,42 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateTeamDto } from './dto/update-team.dto';
 import { TeamsRepository } from './teams.repository';
+import { UpdateTeamDto } from './dto/update-team.dto';
 import { Team } from './entities/team.entity';
 
 @Injectable()
 export class TeamsService {
-  constructor(private readonly teamsRepository: TeamsRepository) {}
+  constructor(private readonly teamsRepo: TeamsRepository) {}
 
-  async create(partialData: Partial<Team>): Promise<Team> {
-    const team = await this.teamsRepository.create(partialData);
+  async createTeam(data: Partial<Team>) {
+    return this.teamsRepo.create(data);
+  }
+
+  async findAllTeams() {
+    return this.teamsRepo.findAll();
+  }
+
+  async findOneTeam(id: number) {
+    const team = await this.teamsRepo.findOne(id);
+    if (!team) throw new NotFoundException('Team not found');
     return team;
   }
 
-  async findAll() {
-    return this.teamsRepository.findAll();
+  async findByCountry(country: string) {
+    return this.teamsRepo.findByCountry(country);
   }
 
-  async findOne(id: number) {
-    const team = await this.teamsRepository.findOne(id);
-    if (!team) {
-      throw new NotFoundException('Team not found');
-    }
-    return team;
-  }
 
-  async update(id: number, updateTeamDto: UpdateTeamDto) {
-    const updated = await this.teamsRepository.update(id, updateTeamDto);
-    if (!updated) {
-      throw new NotFoundException('Team not found');
-    }
+  async updateTeam(id: number, dto: UpdateTeamDto) {
+    const updated = await this.teamsRepo.update(id, dto);
+    if (!updated) throw new NotFoundException('Team not found');
     return updated;
   }
 
-  async remove(id: number) {
-    const result = await this.teamsRepository.remove(id);
-    if (!result) {
-      throw new NotFoundException('Team not found');
-    }
+  async removeTeam(id: number) {
+    const removed = await this.teamsRepo.remove(id);
+    if (!removed) throw new NotFoundException('Team not found');
     return { message: 'Team deleted successfully' };
   }
 }

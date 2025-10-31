@@ -4,6 +4,7 @@ import {
   Column,
   OneToMany,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Player } from 'src/players/entities/player.entity';
 import { Coach } from 'src/coaches/entities/coach.entity';
@@ -23,10 +24,11 @@ export class Team {
   @Column()
   foundationYear: number;
 
-  @OneToMany(() => Player, (player) => player.team)
+  @OneToMany(() => Player, (player) => player.team, { cascade: true })
   players: Player[];
 
-  @OneToOne(() => Coach, (coach) => coach.team)
+  @OneToOne(() => Coach, (coach) => coach.team, { cascade: true })
+  @JoinColumn()
   coach: Coach;
 
   @OneToMany(() => Match, (match) => match.homeTeam)
